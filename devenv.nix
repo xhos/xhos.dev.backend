@@ -18,6 +18,7 @@
     # Clean build artifacts
     clean.exec = "rm -rf bin";
 
+    # Format the code
     fmt.exec = "go fmt ./...";
   };
 
@@ -25,4 +26,7 @@
   enterShell = ''
     mkdir -p bin
   '';
+
+  # Parse .env file
+  dotenv.enable = true;
 }

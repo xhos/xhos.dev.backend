@@ -3,8 +3,8 @@ package spotify
 import (
 	"context"
 	"errors"
-	"os"
 
+	"github.com/xhos/xhos.dev.backend/internal/tools"
 	"github.com/zmb3/spotify/v2"
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
 	"golang.org/x/oauth2/clientcredentials"
@@ -41,8 +41,8 @@ func GetUserPlaylists(userID string, limit int) (*PlaylistsResponse, error) {
 
 	// Get client credentials from environment
 	config := &clientcredentials.Config{
-		ClientID:     os.Getenv("SPOTIFY_ID"),
-		ClientSecret: os.Getenv("SPOTIFY_SECRET"),
+		ClientID:     tools.GetSpotifyID(),
+		ClientSecret: tools.GetSpotifySecret(),
 		TokenURL:     spotifyauth.TokenURL,
 	}
 
@@ -67,9 +67,9 @@ func GetUserPlaylists(userID string, limit int) (*PlaylistsResponse, error) {
 
 	// Convert to our response format
 	response := &PlaylistsResponse{
-    Total:     int(playlistPage.Total), // Convert Numeric to int
-    Playlists: make([]PlaylistData, len(playlistPage.Playlists)),
-}
+		Total:     int(playlistPage.Total), // Convert Numeric to int
+		Playlists: make([]PlaylistData, len(playlistPage.Playlists)),
+	}
 
 	for i, p := range playlistPage.Playlists {
 		playlistData := PlaylistData{
@@ -79,7 +79,7 @@ func GetUserPlaylists(userID string, limit int) (*PlaylistsResponse, error) {
 			Images:      p.Images,
 			TracksTotal: int(p.Tracks.Total), // Convert Numeric to int
 			Public:      p.IsPublic,
-	}
+		}
 
 		if external, ok := p.ExternalURLs["spotify"]; ok {
 			playlistData.URL = external

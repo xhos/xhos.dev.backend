@@ -4,31 +4,24 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	
-	"github.com/go-chi/chi"
-	chimiddle "github.com/go-chi/chi/middleware"
-	"github.com/xhos/xhos.dev.backend/internal/middleware"
-	"github.com/xhos/xhos.dev.backend/internal/spotify"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/xhos/xhos.dev.backend/internal/spotify"
 )
 
-func Handler(r *chi.Mux) {
-	// Global middleware
-	r.Use(chimiddle.StripSlashes)
+func SetupRoutes() *http.ServeMux {
+	router := http.NewServeMux()
 
-	r.Route("/spotify", func(router chi.Router) {
-		router.Use(middleware.Authorization)
+	router.Handle("GET /spotify/{userID}/name", http.HandlerFunc(GetSpotifyUserName))
+	router.Handle("GET /spotify/{userID}/url", http.HandlerFunc(GetSpotifyUserProfileURL))
+	router.Handle("GET /spotify/{userID}/icon/{size}", http.HandlerFunc(GetSpotifyUserIcon))
+	router.Handle("GET /spotify/{userID}/playlists", http.HandlerFunc(GetSpotifyUserPlaylists))
 
-		router.Get("/{userID}/name", GetSpotifyUserName)
-		router.Get("/{userID}/url", GetSpotifyUserProfileURL)
-		router.Get("/{userID}/icon/{size}", GetSpotifyUserIcon)
-		router.Get("/{userID}/playlists", GetSpotifyUserPlaylists)
-	})
+	return router
 }
 
 func GetSpotifyUserName(w http.ResponseWriter, r *http.Request) {
-	userID := chi.URLParam(r, "userID")
+	userID := r.PathValue("userID")
 
 	userData, err := spotify.GetUserData(userID)
 	if err != nil {
@@ -41,7 +34,7 @@ func GetSpotifyUserName(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetSpotifyUserProfileURL(w http.ResponseWriter, r *http.Request) {
-	userID := chi.URLParam(r, "userID")
+	userID := r.PathValue("userID")
 
 	userData, err := spotify.GetUserData(userID)
 	if err != nil {
@@ -54,8 +47,8 @@ func GetSpotifyUserProfileURL(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetSpotifyUserIcon(w http.ResponseWriter, r *http.Request) {
-	userID := chi.URLParam(r, "userID")
-	size := chi.URLParam(r, "size")
+	userID := r.PathValue("userID")
+	size := r.PathValue("size")
 
 	userData, err := spotify.GetUserData(userID)
 	if err != nil {
@@ -83,9 +76,8 @@ func GetSpotifyUserIcon(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"url": imageURL})
 }
 
-// Add this function to your handlers
 func GetSpotifyUserPlaylists(w http.ResponseWriter, r *http.Request) {
-	userID := chi.URLParam(r, "userID")
+	userID := r.PathValue("userID")
 
 	// Get limit from query parameters, default to 20 if not specified
 	limit := 20

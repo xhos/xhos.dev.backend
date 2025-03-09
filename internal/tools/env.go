@@ -7,21 +7,36 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var (
-	apiKey     string
-	apiKeyOnce sync.Once
-)
+type envCache struct {
+	value string
+	once  sync.Once
+}
 
-// GetAPIKey returns the API key from environment variables or configuration.
-// It uses a singleton pattern to only load the key once.
-func GetAPIKey() string {
-	apiKeyOnce.Do(func() {
-		apiKey = os.Getenv("API_KEY")
+var envVars = map[string]*envCache{
+	"API_KEY":        &envCache{},
+	"SPOTIFY_ID":     &envCache{},
+	"SPOTIFY_SECRET": &envCache{},
+}
 
-		if apiKey == "" {
-			log.Warn("API_KEY environment variable is not set")
+func getEnvVar(name string) string {
+	cache := envVars[name]
+	cache.once.Do(func() {
+		cache.value = os.Getenv(name)
+		if cache.value == "" {
+			log.Warnf("%s environment variable is not set", name)
 		}
 	})
+	return cache.value
+}
 
-	return apiKey
+func GetAPIKey() string {
+	return getEnvVar("API_KEY")
+}
+
+func GetSpotifyID() string {
+	return getEnvVar("SPOTIFY_ID")
+}
+
+func GetSpotifySecret() string {
+	return getEnvVar("SPOTIFY_SECRET")
 }

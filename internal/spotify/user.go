@@ -3,8 +3,8 @@ package spotify
 import (
 	"context"
 	"errors"
-	"os"
 
+	"github.com/xhos/xhos.dev.backend/internal/tools"
 	"github.com/zmb3/spotify/v2"
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
 	"golang.org/x/oauth2/clientcredentials"
@@ -37,8 +37,8 @@ func GetUserData(userID string) (*UserData, error) {
 
 	// Get client credentials from environment
 	config := &clientcredentials.Config{
-		ClientID:     os.Getenv("SPOTIFY_ID"),
-		ClientSecret: os.Getenv("SPOTIFY_SECRET"),
+		ClientID:     tools.GetSpotifyID(),
+		ClientSecret: tools.GetSpotifySecret(),
 		TokenURL:     spotifyauth.TokenURL,
 	}
 

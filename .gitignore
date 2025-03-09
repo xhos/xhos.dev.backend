@@ -1,4 +1,4 @@
-# Devenv
+# devenv
 .devenv*
 devenv.local.nix
 
@@ -7,3 +7,9 @@ devenv.local.nix
 
 # pre-commit
 .pre-commit-config.yaml
+
+# binary
+/bin
+
+# dotenv
+.env

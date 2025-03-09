@@ -4,17 +4,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/go-chi/chi"
-	"github.com/xhos/xhos.dev.backend/internal/handlers"
-
 	log "github.com/sirupsen/logrus"
+	"github.com/xhos/xhos.dev.backend/internal/handlers"
+	"github.com/xhos/xhos.dev.backend/internal/middleware"
 )
 
 func main() {
-	log.SetReportCaller(true)
-	var r *chi.Mux = chi.NewRouter()
-	handlers.Handler(r)
-
 	fmt.Println("starting...")
 	fmt.Println(`
           __                        __                __                  __                     __
@@ -24,9 +19,23 @@ func main() {
 /_/|_|/_/ /_/ \____//____/(_)\__,_/ \___/ |___/(_)/_.___/ \__,_/ \___//_/|_| \___//_/ /_/ \__,_/   
                                                                                                    
 `)
-	fmt.Println("API server is running on port 8080")
 
-	err := http.ListenAndServe(":8080", r)
+	// applied to all routes
+	stack := middleware.CreateStack(
+		middleware.Logging,
+		middleware.Auth,
+	)
+
+	router := handlers.SetupRoutes()
+
+	server := &http.Server{
+		Addr:    ":8080",
+		Handler: stack(router),
+	}
+
+	fmt.Println("api server is running on port 8080")
+	
+	err := server.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
 	}
