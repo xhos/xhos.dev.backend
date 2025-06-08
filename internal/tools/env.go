@@ -16,9 +16,11 @@ var envVars = map[string]*envCache{
 	"API_KEY":        &envCache{},
 	"SPOTIFY_ID":     &envCache{},
 	"SPOTIFY_SECRET": &envCache{},
+	"WEBSITE_URL":    &envCache{},
 }
 
-func getEnvVar(name string) string {
+// wrapper for os.Getenv
+func getEnv(name string) string {
 	cache := envVars[name]
 	cache.once.Do(func() {
 		cache.value = os.Getenv(name)
@@ -30,13 +32,17 @@ func getEnvVar(name string) string {
 }
 
 func GetAPIKey() string {
-	return getEnvVar("API_KEY")
+	return getEnv("API_KEY")
 }
 
 func GetSpotifyID() string {
-	return getEnvVar("SPOTIFY_ID")
+	return getEnv("SPOTIFY_ID")
 }
 
 func GetSpotifySecret() string {
-	return getEnvVar("SPOTIFY_SECRET")
+	return getEnv("SPOTIFY_SECRET")
+}
+
+func GetWebsiteURL() string {
+	return getEnv("WEBSITE_URL")
 }
